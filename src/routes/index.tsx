@@ -84,11 +84,18 @@ function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="seu@email.com"
-                  defaultValue="admin@rccbarreiras.org"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="pl-9"
                   required
                 />
               </div>
+              {adminMatch && (
+                <p className="flex items-center gap-1.5 text-xs text-primary">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Administrador Geral reconhecido.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
