@@ -9,38 +9,182 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RecibosRouteImport } from './routes/recibos'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GruposIndexRouteImport } from './routes/grupos.index'
+import { Route as EventosIndexRouteImport } from './routes/eventos.index'
+import { Route as GruposIdRouteImport } from './routes/grupos.$id'
+import { Route as EventosIdRouteImport } from './routes/eventos.$id'
+import { Route as GruposIdPagamentosRouteImport } from './routes/grupos.$id.pagamentos'
+import { Route as GruposIdFarolRouteImport } from './routes/grupos.$id.farol'
+import { Route as GruposIdServosIndexRouteImport } from './routes/grupos.$id.servos.index'
+import { Route as GruposIdServosServoIdRouteImport } from './routes/grupos.$id.servos.$servoId'
 
+const RecibosRoute = RecibosRouteImport.update({
+  id: '/recibos',
+  path: '/recibos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GruposIndexRoute = GruposIndexRouteImport.update({
+  id: '/grupos/',
+  path: '/grupos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventosIndexRoute = EventosIndexRouteImport.update({
+  id: '/eventos/',
+  path: '/eventos/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GruposIdRoute = GruposIdRouteImport.update({
+  id: '/grupos/$id',
+  path: '/grupos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventosIdRoute = EventosIdRouteImport.update({
+  id: '/eventos/$id',
+  path: '/eventos/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GruposIdPagamentosRoute = GruposIdPagamentosRouteImport.update({
+  id: '/pagamentos',
+  path: '/pagamentos',
+  getParentRoute: () => GruposIdRoute,
+} as any)
+const GruposIdFarolRoute = GruposIdFarolRouteImport.update({
+  id: '/farol',
+  path: '/farol',
+  getParentRoute: () => GruposIdRoute,
+} as any)
+const GruposIdServosIndexRoute = GruposIdServosIndexRouteImport.update({
+  id: '/servos/',
+  path: '/servos/',
+  getParentRoute: () => GruposIdRoute,
+} as any)
+const GruposIdServosServoIdRoute = GruposIdServosServoIdRouteImport.update({
+  id: '/servos/$servoId',
+  path: '/servos/$servoId',
+  getParentRoute: () => GruposIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/recibos': typeof RecibosRoute
+  '/eventos/$id': typeof EventosIdRoute
+  '/grupos/$id': typeof GruposIdRouteWithChildren
+  '/eventos/': typeof EventosIndexRoute
+  '/grupos/': typeof GruposIndexRoute
+  '/grupos/$id/farol': typeof GruposIdFarolRoute
+  '/grupos/$id/pagamentos': typeof GruposIdPagamentosRoute
+  '/grupos/$id/servos/$servoId': typeof GruposIdServosServoIdRoute
+  '/grupos/$id/servos/': typeof GruposIdServosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/recibos': typeof RecibosRoute
+  '/eventos/$id': typeof EventosIdRoute
+  '/grupos/$id': typeof GruposIdRouteWithChildren
+  '/eventos': typeof EventosIndexRoute
+  '/grupos': typeof GruposIndexRoute
+  '/grupos/$id/farol': typeof GruposIdFarolRoute
+  '/grupos/$id/pagamentos': typeof GruposIdPagamentosRoute
+  '/grupos/$id/servos/$servoId': typeof GruposIdServosServoIdRoute
+  '/grupos/$id/servos': typeof GruposIdServosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/recibos': typeof RecibosRoute
+  '/eventos/$id': typeof EventosIdRoute
+  '/grupos/$id': typeof GruposIdRouteWithChildren
+  '/eventos/': typeof EventosIndexRoute
+  '/grupos/': typeof GruposIndexRoute
+  '/grupos/$id/farol': typeof GruposIdFarolRoute
+  '/grupos/$id/pagamentos': typeof GruposIdPagamentosRoute
+  '/grupos/$id/servos/$servoId': typeof GruposIdServosServoIdRoute
+  '/grupos/$id/servos/': typeof GruposIdServosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/recibos'
+    | '/eventos/$id'
+    | '/grupos/$id'
+    | '/eventos/'
+    | '/grupos/'
+    | '/grupos/$id/farol'
+    | '/grupos/$id/pagamentos'
+    | '/grupos/$id/servos/$servoId'
+    | '/grupos/$id/servos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/recibos'
+    | '/eventos/$id'
+    | '/grupos/$id'
+    | '/eventos'
+    | '/grupos'
+    | '/grupos/$id/farol'
+    | '/grupos/$id/pagamentos'
+    | '/grupos/$id/servos/$servoId'
+    | '/grupos/$id/servos'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/recibos'
+    | '/eventos/$id'
+    | '/grupos/$id'
+    | '/eventos/'
+    | '/grupos/'
+    | '/grupos/$id/farol'
+    | '/grupos/$id/pagamentos'
+    | '/grupos/$id/servos/$servoId'
+    | '/grupos/$id/servos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  RecibosRoute: typeof RecibosRoute
+  EventosIdRoute: typeof EventosIdRoute
+  GruposIdRoute: typeof GruposIdRouteWithChildren
+  EventosIndexRoute: typeof EventosIndexRoute
+  GruposIndexRoute: typeof GruposIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/recibos': {
+      id: '/recibos'
+      path: '/recibos'
+      fullPath: '/recibos'
+      preLoaderRoute: typeof RecibosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +192,91 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/grupos/': {
+      id: '/grupos/'
+      path: '/grupos'
+      fullPath: '/grupos/'
+      preLoaderRoute: typeof GruposIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eventos/': {
+      id: '/eventos/'
+      path: '/eventos'
+      fullPath: '/eventos/'
+      preLoaderRoute: typeof EventosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/grupos/$id': {
+      id: '/grupos/$id'
+      path: '/grupos/$id'
+      fullPath: '/grupos/$id'
+      preLoaderRoute: typeof GruposIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eventos/$id': {
+      id: '/eventos/$id'
+      path: '/eventos/$id'
+      fullPath: '/eventos/$id'
+      preLoaderRoute: typeof EventosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/grupos/$id/pagamentos': {
+      id: '/grupos/$id/pagamentos'
+      path: '/pagamentos'
+      fullPath: '/grupos/$id/pagamentos'
+      preLoaderRoute: typeof GruposIdPagamentosRouteImport
+      parentRoute: typeof GruposIdRoute
+    }
+    '/grupos/$id/farol': {
+      id: '/grupos/$id/farol'
+      path: '/farol'
+      fullPath: '/grupos/$id/farol'
+      preLoaderRoute: typeof GruposIdFarolRouteImport
+      parentRoute: typeof GruposIdRoute
+    }
+    '/grupos/$id/servos/': {
+      id: '/grupos/$id/servos/'
+      path: '/servos'
+      fullPath: '/grupos/$id/servos/'
+      preLoaderRoute: typeof GruposIdServosIndexRouteImport
+      parentRoute: typeof GruposIdRoute
+    }
+    '/grupos/$id/servos/$servoId': {
+      id: '/grupos/$id/servos/$servoId'
+      path: '/servos/$servoId'
+      fullPath: '/grupos/$id/servos/$servoId'
+      preLoaderRoute: typeof GruposIdServosServoIdRouteImport
+      parentRoute: typeof GruposIdRoute
+    }
   }
 }
 
+interface GruposIdRouteChildren {
+  GruposIdFarolRoute: typeof GruposIdFarolRoute
+  GruposIdPagamentosRoute: typeof GruposIdPagamentosRoute
+  GruposIdServosServoIdRoute: typeof GruposIdServosServoIdRoute
+  GruposIdServosIndexRoute: typeof GruposIdServosIndexRoute
+}
+
+const GruposIdRouteChildren: GruposIdRouteChildren = {
+  GruposIdFarolRoute: GruposIdFarolRoute,
+  GruposIdPagamentosRoute: GruposIdPagamentosRoute,
+  GruposIdServosServoIdRoute: GruposIdServosServoIdRoute,
+  GruposIdServosIndexRoute: GruposIdServosIndexRoute,
+}
+
+const GruposIdRouteWithChildren = GruposIdRoute._addFileChildren(
+  GruposIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  RecibosRoute: RecibosRoute,
+  EventosIdRoute: EventosIdRoute,
+  GruposIdRoute: GruposIdRouteWithChildren,
+  EventosIndexRoute: EventosIndexRoute,
+  GruposIndexRoute: GruposIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
