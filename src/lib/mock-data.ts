@@ -8,12 +8,34 @@ import type {
   FarolStatus,
 } from "./types";
 
-export const currentUser: User = {
-  id: "u-admin",
-  nome: "Pe. José Almeida",
-  email: "admin@rccbarreiras.org",
-  role: "admin",
-};
+// E-mails reconhecidos como Administradores Gerais do sistema.
+// Quando o Lovable Cloud for ativado, estes usuários serão provisionados
+// automaticamente com a role "admin" via trigger no signup.
+export const ADMIN_EMAILS: readonly string[] = [
+  "fabricio.christian@hotmail.com",
+  "carpinteria.ia.sj@gmail.com",
+] as const;
+
+export const adminUsers: User[] = [
+  {
+    id: "u-admin-1",
+    nome: "Fabrício Christian",
+    email: "fabricio.christian@hotmail.com",
+    role: "admin",
+  },
+  {
+    id: "u-admin-2",
+    nome: "Carpintaria IA SJ",
+    email: "carpinteria.ia.sj@gmail.com",
+    role: "admin",
+  },
+];
+
+export function isAdminEmail(email: string): boolean {
+  return ADMIN_EMAILS.includes(email.trim().toLowerCase());
+}
+
+export const currentUser: User = adminUsers[0];
 
 export const grupos: Grupo[] = [
   {
