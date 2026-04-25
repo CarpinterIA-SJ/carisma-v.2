@@ -1,9 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Flame, Mail, Lock } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Flame, Mail, Lock, ShieldCheck } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ADMIN_EMAILS, isAdminEmail } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,12 +23,15 @@ export const Route = createFileRoute("/")({
 function LoginPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string>(ADMIN_EMAILS[0]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => navigate({ to: "/admin" }), 500);
   };
+
+  const adminMatch = isAdminEmail(email);
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
