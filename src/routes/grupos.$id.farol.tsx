@@ -1,15 +1,22 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { Download } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { AccessDenied } from "@/components/AccessDenied";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { getGrupoById, grupos, getFarolStatus } from "@/lib/mock-data";
+import { getGrupoById, getGruposComFarol } from "@/lib/services";
+import { useAuth } from "@/lib/auth";
+import { canAccessFinanceiro } from "@/lib/permissions";
+import type { FarolStatus } from "@/lib/types";
 
 export const Route = createFileRoute("/grupos/$id/farol")({
-  loader: ({ params }) => {
-    const grupo = getGrupoById(params.id);
+  loader: async ({ params }) => {
+    const [grupo, gruposComFarol] = await Promise.all([
+      getGrupoById(params.id),
+      getGruposComFarol(),
+    ]);
     if (!grupo) throw notFound();
-    return { grupo };
+    return { grupo, gruposComFarol };
   },
   head: ({ loaderData }) => ({
     meta: [{ title: `Farol — ${loaderData?.grupo.nome ?? "Grupo"}` }],
@@ -17,40 +24,61 @@ export const Route = createFileRoute("/grupos/$id/farol")({
   component: FarolPage,
 });
 
-const farolColors = {
+const farolColors: Record<FarolStatus, string> = {
   verde: "bg-success",
   amarelo: "bg-warning",
   vermelho: "bg-destructive",
 };
 
-const farolBg = {
+const farolBg: Record<FarolStatus, string> = {
   verde: "bg-success/5 border-success/30",
   amarelo: "bg-warning/10 border-warning/40",
   vermelho: "bg-destructive/5 border-destructive/30",
 };
 
-const farolLabels = {
+const farolLabels: Record<FarolStatus, string> = {
   verde: "Em dia",
   amarelo: "Atraso parcial",
   vermelho: "Inadimplente",
 };
 
 function FarolPage() {
-  const { grupo } = Route.useLoaderData();
-  const aprovados = grupos.filter((g) => g.status === "aprovado");
+  const { grupo, gruposComFarol } = Route.useLoaderData();
+  const { user } = useAuth();
 
-  const grouped: Record<string, typeof aprovados> = {
+  if (!canAccessFinanceiro(user, grupo)) {
+    return (
+      <AppShell>
+        <AccessDenied
+          title="Sem acesso ao farol"
+          message="Apenas o coordenador, tesoureiro e administradores podem visualizar o farol financeiro."
+          backTo={`/grupos/${grupo.id}`}
+        />
+      </AppShell>
+    );
+  }
+
+  const visibleGrupos =
+    user?.role === "admin"
+      ? gruposComFarol
+      : gruposComFarol.filter((g) => g.id === grupo.id);
+
+  const grouped: Record<FarolStatus, typeof gruposComFarol> = {
     verde: [],
     amarelo: [],
     vermelho: [],
   };
-  aprovados.forEach((g) => grouped[getFarolStatus(g.id)].push(g));
+  visibleGrupos.forEach((g) => grouped[g.farol].push(g));
 
   return (
     <AppShell>
       <PageHeader
         title="Farol de Pagamentos"
-        description="Visão consolidada do status de mensalidades dos grupos."
+        description={
+          user?.role === "admin"
+            ? "Visão consolidada do status de mensalidades de todos os grupos."
+            : `Status de mensalidades — ${grupo.nome}`
+        }
         backTo={`/grupos/${grupo.id}`}
         actions={
           <>
@@ -69,10 +97,7 @@ function FarolPage() {
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         {(["verde", "amarelo", "vermelho"] as const).map((status) => (
-          <div
-            key={status}
-            className={`rounded-lg border p-5 ${farolBg[status]}`}
-          >
+          <div key={status} className={`rounded-lg border p-5 ${farolBg[status]}`}>
             <div className="flex items-center gap-3">
               <span className={`h-4 w-4 rounded-full ${farolColors[status]}`} />
               <p className="text-sm font-semibold">{farolLabels[status]}</p>

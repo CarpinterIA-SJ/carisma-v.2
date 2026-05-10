@@ -1,14 +1,18 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Edit, Camera, Mail, Phone, MapPin, Calendar, Award } from "lucide-react";
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
-import { getGrupoById, getServoById } from "@/lib/mock-data";
+import { ServoFormDialog } from "@/components/ServoFormDialog";
+import { getGrupoById, getServoById } from "@/lib/services";
 
 export const Route = createFileRoute("/grupos/$id/servos/$servoId")({
-  loader: ({ params }) => {
-    const grupo = getGrupoById(params.id);
-    const servo = getServoById(params.servoId);
+  loader: async ({ params }) => {
+    const [grupo, servo] = await Promise.all([
+      getGrupoById(params.id),
+      getServoById(params.servoId),
+    ]);
     if (!grupo || !servo) throw notFound();
     return { grupo, servo };
   },
@@ -20,6 +24,7 @@ export const Route = createFileRoute("/grupos/$id/servos/$servoId")({
 
 function ServoPerfilPage() {
   const { grupo, servo } = Route.useLoaderData();
+  const [editOpen, setEditOpen] = useState(false);
 
   return (
     <AppShell>
@@ -28,7 +33,7 @@ function ServoPerfilPage() {
         description={`${servo.funcao} • ${grupo.nome}`}
         backTo={`/grupos/${grupo.id}/servos`}
         actions={
-          <Button size="sm">
+          <Button size="sm" onClick={() => setEditOpen(true)}>
             <Edit className="mr-2 h-4 w-4" />
             Editar Servo
           </Button>
@@ -59,8 +64,15 @@ function ServoPerfilPage() {
               <Award className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">Etapa Formativa</h3>
             </div>
-            <div className="mt-3 rounded-md bg-primary/10 p-3">
-              <p className="text-sm font-medium text-primary">{servo.etapaFormativa}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {servo.etapasFormativas.map((e) => (
+                <span
+                  key={e}
+                  className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary"
+                >
+                  {e}
+                </span>
+              ))}
             </div>
           </div>
 
@@ -115,6 +127,8 @@ function ServoPerfilPage() {
           </div>
         </div>
       </div>
+
+      <ServoFormDialog open={editOpen} onOpenChange={setEditOpen} grupoId={grupo.id} servo={servo} />
     </AppShell>
   );
 }

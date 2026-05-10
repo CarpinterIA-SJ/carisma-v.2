@@ -1,16 +1,20 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { Edit, FileDown, UserPlus, Bus, Calendar, MapPin, Clock, Users } from "lucide-react";
+import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { eventos, getServoById } from "@/lib/mock-data";
+import { EventoFormDialog } from "@/components/EventoFormDialog";
+import { getEventoById, getServosByIds } from "@/lib/services";
+import type { Servo } from "@/lib/types";
 
 export const Route = createFileRoute("/eventos/$id")({
-  loader: ({ params }) => {
-    const evento = eventos.find((e) => e.id === params.id);
+  loader: async ({ params }) => {
+    const evento = await getEventoById(params.id);
     if (!evento) throw notFound();
-    return { evento };
+    const inscritos = await getServosByIds(evento.inscritos);
+    return { evento, inscritos };
   },
   head: ({ loaderData }) => ({
     meta: [
@@ -22,8 +26,10 @@ export const Route = createFileRoute("/eventos/$id")({
 });
 
 function EventoDetalhesPage() {
-  const { evento } = Route.useLoaderData();
+  const { evento, inscritos } = Route.useLoaderData();
+  const [editOpen, setEditOpen] = useState(false);
   const ocupacao = Math.round((evento.inscritos.length / evento.vagas) * 100);
+  const inscritosMap = Object.fromEntries(inscritos.map((s: Servo) => [s.id, s]));
 
   return (
     <AppShell>
@@ -37,7 +43,7 @@ function EventoDetalhesPage() {
               <FileDown className="mr-2 h-4 w-4" />
               Lista de Presença
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Editar
             </Button>
@@ -45,8 +51,8 @@ function EventoDetalhesPage() {
         }
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid gap-6 md:grid-cols-3">
+        <div className="md:col-span-2 space-y-6">
           <div className="rounded-lg border border-border bg-card p-6">
             <div className="flex items-center justify-between">
               <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
@@ -104,14 +110,14 @@ function EventoDetalhesPage() {
             </div>
             <div className="divide-y divide-border">
               {evento.inscritos.map((sid) => {
-                const s = getServoById(sid);
+                const s = inscritosMap[sid];
                 if (!s) return null;
                 return (
                   <div key={sid} className="flex items-center gap-3 px-5 py-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                       {s.nome
                         .split(" ")
-                        .map((n) => n[0])
+                        .map((n: string) => n[0])
                         .slice(0, 2)
                         .join("")}
                     </div>
@@ -142,6 +148,8 @@ function EventoDetalhesPage() {
           </Button>
         </div>
       </div>
+
+      <EventoFormDialog open={editOpen} onOpenChange={setEditOpen} evento={evento} />
     </AppShell>
   );
 }

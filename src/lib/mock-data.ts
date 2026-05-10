@@ -22,12 +22,14 @@ export const adminUsers: User[] = [
     nome: "Fabrício Christian",
     email: "fabricio.christian@hotmail.com",
     role: "admin",
+    status: "aprovado",
   },
   {
     id: "u-admin-2",
     nome: "Carpintaria IA SJ",
     email: "carpinteria.ia.sj@gmail.com",
     role: "admin",
+    status: "aprovado",
   },
 ];
 
@@ -187,16 +189,12 @@ export const servos: Servo[] = nomesServos.flatMap((nome, i) => {
             : i === 2
               ? "Tesoureiro(a)"
               : "Servo(a)",
-      etapaFormativa:
-        i % 5 === 0
-          ? "Discipulado"
-          : i % 4 === 0
-            ? "Maturidade"
-            : i % 3 === 0
-              ? "Crescimento"
-              : i % 2 === 0
-                ? "Seminário Vida no Espírito Santo"
-                : "Iniciante",
+      etapasFormativas:
+        i % 3 === 0
+          ? ["Aprofundamento de Dons", "Vida Cristã 1"]
+          : i % 2 === 0
+            ? ["Experiência de Oração"]
+            : ["Seminário de Vida no Espírito Santo"],
       ministerios:
         i % 3 === 0
           ? ["Música", "Pregação"]
@@ -241,7 +239,6 @@ export const mensalidades: Mensalidade[] = grupos
         vencimento: `2025-${String(mes).padStart(2, "0")}-10`,
         status: status as Mensalidade["status"],
         dataPagamento: status === "pago" ? `2025-${String(mes).padStart(2, "0")}-08` : undefined,
-        codigoBarras: "23793.38128 60082.179171 38000.063305 1 95820000005000",
       };
     }),
   );

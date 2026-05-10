@@ -5,9 +5,11 @@ import { AppShell } from "@/components/AppShell";
 import { PageHeader } from "@/components/PageHeader";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
-import { eventos } from "@/lib/mock-data";
+import { EventoFormDialog } from "@/components/EventoFormDialog";
+import { getEventos } from "@/lib/services";
 
 export const Route = createFileRoute("/eventos/")({
+  loader: () => getEventos(),
   head: () => ({
     meta: [
       { title: "Eventos — RCC Barreiras" },
@@ -18,8 +20,10 @@ export const Route = createFileRoute("/eventos/")({
 });
 
 function EventosPage() {
+  const eventos = Route.useLoaderData();
   const [tipo, setTipo] = useState("todos");
   const [status, setStatus] = useState("todos");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const filtrados = eventos.filter((e) => {
     const matchTipo = tipo === "todos" || e.tipo === tipo;
@@ -33,7 +37,7 @@ function EventosPage() {
         title="Gerenciamento de Eventos"
         description="Cadastro de assembleias, encontros, congressos, caravanas e demais eventos."
         actions={
-          <Button size="sm">
+          <Button size="sm" onClick={() => setDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Novo Evento
           </Button>
@@ -66,6 +70,8 @@ function EventosPage() {
           <option value="cancelado">Cancelados</option>
         </select>
       </div>
+
+      <EventoFormDialog open={dialogOpen} onOpenChange={setDialogOpen} />
 
       <div className="grid gap-4 md:grid-cols-2">
         {filtrados.map((ev) => (

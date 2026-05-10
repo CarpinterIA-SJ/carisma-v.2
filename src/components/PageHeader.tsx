@@ -11,8 +11,8 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, backTo, actions }: PageHeaderProps) {
   return (
-    <div className="mb-6 flex flex-col gap-4 border-b border-border pb-6 sm:flex-row sm:items-end sm:justify-between">
-      <div>
+    <div className="mb-4 md:mb-6 flex flex-col gap-3 border-b border-border pb-4 md:pb-6 sm:flex-row sm:items-end sm:justify-between">
+      <div className="min-w-0">
         {backTo && (
           <Link
             to={backTo}
@@ -22,12 +22,12 @@ export function PageHeader({ title, description, backTo, actions }: PageHeaderPr
             Voltar
           </Link>
         )}
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">{title}</h1>
         {description && (
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          <p className="mt-1 text-sm text-muted-foreground truncate">{description}</p>
         )}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {actions && <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 export type UserRole = "admin" | "coordenador" | "tesoureiro" | "secretario";
 
+export type UserStatus = "pendente" | "aprovado" | "rejeitado";
+
 export interface User {
   id: string;
   nome: string;
@@ -7,6 +9,7 @@ export interface User {
   role: UserRole;
   grupoId?: string;
   avatar?: string;
+  status: UserStatus;
 }
 
 export type GrupoStatus = "aprovado" | "pendente" | "rejeitado";
@@ -36,12 +39,39 @@ export interface Grupo {
   paroquia: string;
 }
 
+export const ETAPAS_FORMATIVAS = {
+  "Etapa 1": [
+    "Seminário de Vida no Espírito Santo",
+    "Experiência de Oração",
+    "Aprofundamento de Dons",
+  ],
+  "Etapa 2": [
+    "Vida Cristã 1",
+    "Identidade",
+    "Jesus, Senhor e Mestre",
+    "Vida no Espírito Santo",
+    "Grupo de Oração",
+    "Vida de Oração",
+    "Carismas e Dons do Espírito",
+    "Igreja",
+    "Vida Cristã 2",
+  ],
+  "Etapa 3": [
+    "Pregação",
+    "Música",
+    "Intercessão",
+    "Jovens",
+    "Família",
+    "Comunicação",
+    "Crianças e Adolescentes",
+    "Promoção Humana",
+  ],
+} as const;
+
 export type EtapaFormativa =
-  | "Iniciante"
-  | "Seminário Vida no Espírito Santo"
-  | "Crescimento"
-  | "Maturidade"
-  | "Discipulado";
+  | (typeof ETAPAS_FORMATIVAS)["Etapa 1"][number]
+  | (typeof ETAPAS_FORMATIVAS)["Etapa 2"][number]
+  | (typeof ETAPAS_FORMATIVAS)["Etapa 3"][number];
 
 export type Ministerio =
   | "Música"
@@ -63,13 +93,23 @@ export interface Servo {
   dataNascimento: string;
   endereco: Endereco;
   funcao: string;
-  etapaFormativa: EtapaFormativa;
+  etapasFormativas: EtapaFormativa[];
   ministerios: Ministerio[];
   avatar?: string;
   ingressoEm: string;
 }
 
 export type StatusPagamento = "pago" | "pendente" | "atrasado" | "validacao";
+
+export const TIPOS_COBRANCA = [
+  { value: "mensalidade", label: "Mensalidade" },
+  { value: "taxa_evento", label: "Taxa de Evento" },
+  { value: "contribuicao_especial", label: "Contribuição Especial" },
+  { value: "taxa_formacao", label: "Taxa de Formação" },
+  { value: "outro", label: "Outro" },
+] as const;
+
+export type TipoCobranca = typeof TIPOS_COBRANCA[number]["value"];
 
 export interface Mensalidade {
   id: string;
@@ -79,9 +119,10 @@ export interface Mensalidade {
   valor: number;
   vencimento: string;
   status: StatusPagamento;
+  tipo?: TipoCobranca;
+  descricao?: string;
   dataPagamento?: string;
-  boletoUrl?: string;
-  codigoBarras?: string;
+  comprovanteUrl?: string;
 }
 
 export interface Recibo {

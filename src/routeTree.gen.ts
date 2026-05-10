@@ -9,21 +9,40 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RecibosRouteImport } from './routes/recibos'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GruposIndexRouteImport } from './routes/grupos.index'
 import { Route as EventosIndexRouteImport } from './routes/eventos.index'
 import { Route as GruposIdRouteImport } from './routes/grupos.$id'
 import { Route as EventosIdRouteImport } from './routes/eventos.$id'
+import { Route as GruposIdIndexRouteImport } from './routes/grupos.$id.index'
 import { Route as GruposIdPagamentosRouteImport } from './routes/grupos.$id.pagamentos'
 import { Route as GruposIdFarolRouteImport } from './routes/grupos.$id.farol'
 import { Route as GruposIdServosIndexRouteImport } from './routes/grupos.$id.servos.index'
 import { Route as GruposIdServosServoIdRouteImport } from './routes/grupos.$id.servos.$servoId'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecibosRoute = RecibosRouteImport.update({
   id: '/recibos',
   path: '/recibos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -56,6 +75,11 @@ const EventosIdRoute = EventosIdRouteImport.update({
   path: '/eventos/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GruposIdIndexRoute = GruposIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GruposIdRoute,
+} as any)
 const GruposIdPagamentosRoute = GruposIdPagamentosRouteImport.update({
   id: '/pagamentos',
   path: '/pagamentos',
@@ -80,26 +104,33 @@ const GruposIdServosServoIdRoute = GruposIdServosServoIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/cadastro': typeof CadastroRoute
+  '/dashboard': typeof DashboardRoute
   '/recibos': typeof RecibosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/eventos/$id': typeof EventosIdRoute
   '/grupos/$id': typeof GruposIdRouteWithChildren
   '/eventos/': typeof EventosIndexRoute
   '/grupos/': typeof GruposIndexRoute
   '/grupos/$id/farol': typeof GruposIdFarolRoute
   '/grupos/$id/pagamentos': typeof GruposIdPagamentosRoute
+  '/grupos/$id/': typeof GruposIdIndexRoute
   '/grupos/$id/servos/$servoId': typeof GruposIdServosServoIdRoute
   '/grupos/$id/servos/': typeof GruposIdServosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/cadastro': typeof CadastroRoute
+  '/dashboard': typeof DashboardRoute
   '/recibos': typeof RecibosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/eventos/$id': typeof EventosIdRoute
-  '/grupos/$id': typeof GruposIdRouteWithChildren
   '/eventos': typeof EventosIndexRoute
   '/grupos': typeof GruposIndexRoute
   '/grupos/$id/farol': typeof GruposIdFarolRoute
   '/grupos/$id/pagamentos': typeof GruposIdPagamentosRoute
+  '/grupos/$id': typeof GruposIdIndexRoute
   '/grupos/$id/servos/$servoId': typeof GruposIdServosServoIdRoute
   '/grupos/$id/servos': typeof GruposIdServosIndexRoute
 }
@@ -107,13 +138,17 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
+  '/cadastro': typeof CadastroRoute
+  '/dashboard': typeof DashboardRoute
   '/recibos': typeof RecibosRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/eventos/$id': typeof EventosIdRoute
   '/grupos/$id': typeof GruposIdRouteWithChildren
   '/eventos/': typeof EventosIndexRoute
   '/grupos/': typeof GruposIndexRoute
   '/grupos/$id/farol': typeof GruposIdFarolRoute
   '/grupos/$id/pagamentos': typeof GruposIdPagamentosRoute
+  '/grupos/$id/': typeof GruposIdIndexRoute
   '/grupos/$id/servos/$servoId': typeof GruposIdServosServoIdRoute
   '/grupos/$id/servos/': typeof GruposIdServosIndexRoute
 }
@@ -122,39 +157,50 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/cadastro'
+    | '/dashboard'
     | '/recibos'
+    | '/reset-password'
     | '/eventos/$id'
     | '/grupos/$id'
     | '/eventos/'
     | '/grupos/'
     | '/grupos/$id/farol'
     | '/grupos/$id/pagamentos'
+    | '/grupos/$id/'
     | '/grupos/$id/servos/$servoId'
     | '/grupos/$id/servos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin'
+    | '/cadastro'
+    | '/dashboard'
     | '/recibos'
+    | '/reset-password'
     | '/eventos/$id'
-    | '/grupos/$id'
     | '/eventos'
     | '/grupos'
     | '/grupos/$id/farol'
     | '/grupos/$id/pagamentos'
+    | '/grupos/$id'
     | '/grupos/$id/servos/$servoId'
     | '/grupos/$id/servos'
   id:
     | '__root__'
     | '/'
     | '/admin'
+    | '/cadastro'
+    | '/dashboard'
     | '/recibos'
+    | '/reset-password'
     | '/eventos/$id'
     | '/grupos/$id'
     | '/eventos/'
     | '/grupos/'
     | '/grupos/$id/farol'
     | '/grupos/$id/pagamentos'
+    | '/grupos/$id/'
     | '/grupos/$id/servos/$servoId'
     | '/grupos/$id/servos/'
   fileRoutesById: FileRoutesById
@@ -162,7 +208,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
+  CadastroRoute: typeof CadastroRoute
+  DashboardRoute: typeof DashboardRoute
   RecibosRoute: typeof RecibosRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   EventosIdRoute: typeof EventosIdRoute
   GruposIdRoute: typeof GruposIdRouteWithChildren
   EventosIndexRoute: typeof EventosIndexRoute
@@ -171,11 +220,32 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recibos': {
       id: '/recibos'
       path: '/recibos'
       fullPath: '/recibos'
       preLoaderRoute: typeof RecibosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -220,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventosIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/grupos/$id/': {
+      id: '/grupos/$id/'
+      path: '/'
+      fullPath: '/grupos/$id/'
+      preLoaderRoute: typeof GruposIdIndexRouteImport
+      parentRoute: typeof GruposIdRoute
+    }
     '/grupos/$id/pagamentos': {
       id: '/grupos/$id/pagamentos'
       path: '/pagamentos'
@@ -254,6 +331,7 @@ declare module '@tanstack/react-router' {
 interface GruposIdRouteChildren {
   GruposIdFarolRoute: typeof GruposIdFarolRoute
   GruposIdPagamentosRoute: typeof GruposIdPagamentosRoute
+  GruposIdIndexRoute: typeof GruposIdIndexRoute
   GruposIdServosServoIdRoute: typeof GruposIdServosServoIdRoute
   GruposIdServosIndexRoute: typeof GruposIdServosIndexRoute
 }
@@ -261,6 +339,7 @@ interface GruposIdRouteChildren {
 const GruposIdRouteChildren: GruposIdRouteChildren = {
   GruposIdFarolRoute: GruposIdFarolRoute,
   GruposIdPagamentosRoute: GruposIdPagamentosRoute,
+  GruposIdIndexRoute: GruposIdIndexRoute,
   GruposIdServosServoIdRoute: GruposIdServosServoIdRoute,
   GruposIdServosIndexRoute: GruposIdServosIndexRoute,
 }
@@ -272,7 +351,10 @@ const GruposIdRouteWithChildren = GruposIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
+  CadastroRoute: CadastroRoute,
+  DashboardRoute: DashboardRoute,
   RecibosRoute: RecibosRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   EventosIdRoute: EventosIdRoute,
   GruposIdRoute: GruposIdRouteWithChildren,
   EventosIndexRoute: EventosIndexRoute,

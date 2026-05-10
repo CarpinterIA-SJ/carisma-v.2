@@ -1,0 +1,176 @@
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
+import { supabase } from "./supabase";
+import type { User, UserRole, UserStatus } from "./types";
+
+interface SignUpInput {
+  nome: string;
+  email: string;
+  password: string;
+  role: Exclude<UserRole, "admin">;
+  grupoId: string;
+}
+
+interface AuthContextType {
+  session: Session | null;
+  user: User | null;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (input: SignUpInput) => Promise<{ error: string | null }>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error: string | null }>;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    let currentUserId: string | null = null;
+
+    async function loadProfile(supabaseUser: SupabaseUser) {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", supabaseUser.id)
+          .single();
+        if (cancelled) return;
+        if (data) {
+          const status: UserStatus = (data.status as UserStatus) ?? "aprovado";
+          if (status !== "aprovado") {
+            // Sessão criada mas perfil não aprovado: derruba sessão imediatamente.
+            await supabase.auth.signOut();
+            setUser(null);
+            setSession(null);
+            return;
+          }
+          setUser({
+            id: data.id,
+            nome: data.nome,
+            email: supabaseUser.email!,
+            role: data.role,
+            grupoId: data.grupo_id ?? undefined,
+            avatar: data.avatar ?? undefined,
+            status,
+          });
+        } else {
+          setUser(null);
+        }
+      } catch {
+        if (!cancelled) setUser(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    }
+
+    function handleSession(session: Session | null) {
+      setSession(session);
+      const nextUserId = session?.user.id ?? null;
+      // Skip refetch if the user hasn't changed (e.g. TOKEN_REFRESHED, USER_UPDATED).
+      if (nextUserId === currentUserId) {
+        if (!session) setLoading(false);
+        return;
+      }
+      currentUserId = nextUserId;
+      if (session) {
+        setLoading(true);
+        loadProfile(session.user);
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled) return;
+      handleSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+      handleSession(session);
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  async function signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) return { error: error.message };
+
+    // Bloqueia acesso se o profile não estiver aprovado.
+    const userId = data.user?.id;
+    if (userId) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("status")
+        .eq("id", userId)
+        .single();
+      const status: UserStatus = (profile?.status as UserStatus) ?? "aprovado";
+      if (status !== "aprovado") {
+        await supabase.auth.signOut();
+        return {
+          error:
+            status === "rejeitado"
+              ? "Cadastro rejeitado pelo administrador."
+              : "Cadastro aguardando aprovação do administrador.",
+        };
+      }
+    }
+    return { error: null };
+  }
+
+  async function signUp(input: SignUpInput) {
+    const { error } = await supabase.auth.signUp({
+      email: input.email,
+      password: input.password,
+      options: {
+        data: {
+          nome: input.nome,
+          role: input.role,
+          grupoId: input.grupoId,
+          status: "pendente",
+        },
+      },
+    });
+    if (error) return { error: error.message };
+
+    // Garante que o usuário não fique logado após o signUp (caso o projeto não exija
+    // confirmação de e-mail). O acesso só vale após aprovação do admin.
+    await supabase.auth.signOut();
+    return { error: null };
+  }
+
+  async function signOut() {
+    await supabase.auth.signOut();
+  }
+
+  async function resetPassword(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    return { error: error?.message ?? null };
+  }
+
+  return (
+    <AuthContext.Provider value={{ session, user, loading, signIn, signUp, signOut, resetPassword }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
+  return ctx;
+}
