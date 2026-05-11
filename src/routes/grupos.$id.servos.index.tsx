@@ -113,12 +113,16 @@ function ServosListPage() {
           className="rounded-md border border-input bg-background px-3 py-2 text-sm"
         >
           <option value="todos">Todos ministérios</option>
-          <option>Música</option>
+          <option>Música e Artes</option>
           <option>Intercessão</option>
           <option>Pregação</option>
-          <option>Acolhida</option>
+          <option>Promoção Humana</option>
           <option>Jovens</option>
+          <option>Crianças e Adolescentes</option>
+          <option>Família</option>
+          <option>Cura e Libertação</option>
           <option>Comunicação</option>
+          <option>Formação</option>
         </select>
         <select
           value={etapa}

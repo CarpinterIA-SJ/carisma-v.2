@@ -32,27 +32,51 @@ const FUNCOES = [
   "Secretário(a)",
   "Tesoureiro(a)",
   "Servo(a)",
-  "Músico(a)",
-  "Intercessor(a)",
 ];
 
 const MINISTERIOS = [
-  "Música",
+  "Música e Artes",
   "Intercessão",
   "Pregação",
-  "Acolhida",
+  "Promoção Humana",
   "Jovens",
-  "Crianças",
-  "Casais",
+  "Crianças e Adolescentes",
+  "Família",
   "Cura e Libertação",
   "Comunicação",
+  "Formação",
 ] as const;
+
+const DATE_BR_REGEX = /^(0[1-9]|[12]\d|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+
+function isoToBr(iso: string): string {
+  if (!iso) return "";
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return iso;
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}
+
+function brToIso(br: string): string {
+  const m = br.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return br;
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+
+function maskDateBr(v: string): string {
+  const d = v.replace(/\D/g, "").slice(0, 8);
+  if (d.length <= 2) return d;
+  if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`;
+  return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+}
 
 const schema = z.object({
   nome: z.string().min(2, "Nome obrigatório"),
   email: z.string().email("E-mail inválido"),
   telefone: z.string().min(8, "Telefone obrigatório"),
-  dataNascimento: z.string().min(1, "Data de nascimento obrigatória"),
+  dataNascimento: z
+    .string()
+    .min(1, "Data de nascimento obrigatória")
+    .regex(DATE_BR_REGEX, "Use o formato dd/mm/aaaa"),
   funcao: z.string().min(1, "Função obrigatória"),
   etapasFormativas: z
     .array(z.enum(ETAPAS_ALL as unknown as [EtapaFormativa, ...EtapaFormativa[]]))
@@ -106,7 +130,7 @@ export function ServoFormDialog({ open, onOpenChange, grupoId, servo }: Props) {
         nome: servo?.nome ?? "",
         email: servo?.email ?? "",
         telefone: servo?.telefone ?? "",
-        dataNascimento: servo?.dataNascimento ?? "",
+        dataNascimento: isoToBr(servo?.dataNascimento ?? ""),
         funcao: servo?.funcao ?? "",
         etapasFormativas: servo?.etapasFormativas ?? [],
         ministerios: servo?.ministerios ?? [],
@@ -127,7 +151,7 @@ export function ServoFormDialog({ open, onOpenChange, grupoId, servo }: Props) {
       nome: values.nome,
       email: values.email,
       telefone: values.telefone,
-      dataNascimento: values.dataNascimento,
+      dataNascimento: brToIso(values.dataNascimento),
       funcao: values.funcao,
       etapasFormativas: values.etapasFormativas as Servo["etapasFormativas"],
       ministerios: values.ministerios as Servo["ministerios"],
@@ -218,7 +242,14 @@ export function ServoFormDialog({ open, onOpenChange, grupoId, servo }: Props) {
                   <FormItem>
                     <FormLabel>Data de Nascimento</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="dd/mm/aaaa"
+                        maxLength={10}
+                        {...field}
+                        onChange={(e) => field.onChange(maskDateBr(e.target.value))}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -58,13 +58,15 @@ export const ETAPAS_FORMATIVAS = {
   ],
   "Etapa 3": [
     "Pregação",
-    "Música",
+    "Música e Artes",
     "Intercessão",
     "Jovens",
     "Família",
     "Comunicação",
     "Crianças e Adolescentes",
     "Promoção Humana",
+    "Formação",
+    "Cura e Libertação",
   ],
 } as const;
 
@@ -74,15 +76,16 @@ export type EtapaFormativa =
   | (typeof ETAPAS_FORMATIVAS)["Etapa 3"][number];
 
 export type Ministerio =
-  | "Música"
+  | "Música e Artes"
   | "Intercessão"
   | "Pregação"
-  | "Acolhida"
+  | "Promoção Humana"
   | "Jovens"
-  | "Crianças"
-  | "Casais"
+  | "Crianças e Adolescentes"
+  | "Família"
   | "Cura e Libertação"
-  | "Comunicação";
+  | "Comunicação"
+  | "Formação";
 
 export interface Servo {
   id: string;

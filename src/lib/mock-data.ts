@@ -197,9 +197,9 @@ export const servos: Servo[] = nomesServos.flatMap((nome, i) => {
             : ["Seminário de Vida no Espírito Santo"],
       ministerios:
         i % 3 === 0
-          ? ["Música", "Pregação"]
+          ? ["Música e Artes", "Pregação"]
           : i % 3 === 1
-            ? ["Intercessão", "Acolhida"]
+            ? ["Intercessão", "Promoção Humana"]
             : ["Jovens", "Comunicação"],
       ingressoEm: `202${i % 5}-0${(i % 9) + 1}-15`,
     },
