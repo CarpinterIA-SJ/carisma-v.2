@@ -45,6 +45,7 @@ function CadastroPage() {
   const { signUp } = useAuth();
 
   const [grupos, setGrupos] = useState<{ id: string; nome: string; paroquia: string | null }[]>([]);
+  const [gruposLoading, setGruposLoading] = useState(true);
   const [grupoLoadError, setGrupoLoadError] = useState<string | null>(null);
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -58,9 +59,31 @@ function CadastroPage() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+    setGruposLoading(true);
     getGruposPublicos()
-      .then(setGrupos)
-      .catch(() => setGrupoLoadError("Não foi possível carregar a lista de grupos."));
+      .then((list) => {
+        if (cancelled) return;
+        setGrupos(list);
+        if (list.length === 0) {
+          setGrupoLoadError(
+            "Nenhum grupo aprovado disponível. Contate o administrador da Diocese.",
+          );
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("[cadastro] getGruposPublicos:", err);
+        setGrupoLoadError(
+          `Não foi possível carregar a lista de grupos${err?.message ? `: ${err.message}` : "."}`,
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setGruposLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function handleSubmit(e: { preventDefault(): void }) {
@@ -219,10 +242,14 @@ function CadastroPage() {
                     onChange={(e) => setGrupoId(e.target.value)}
                     className="h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 text-sm"
                     required
-                    disabled={grupos.length === 0}
+                    disabled={gruposLoading || grupos.length === 0}
                   >
                     <option value="">
-                      {grupos.length === 0 ? "Carregando grupos..." : "Selecione..."}
+                      {gruposLoading
+                        ? "Carregando grupos..."
+                        : grupos.length === 0
+                          ? "Nenhum grupo disponível"
+                          : "Selecione..."}
                     </option>
                     {grupos.map((g) => (
                       <option key={g.id} value={g.id}>
