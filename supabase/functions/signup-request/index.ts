@@ -38,12 +38,19 @@ Deno.serve(async (req: Request) => {
     const password = typeof body.password === "string" ? body.password : "";
     const role = body.role;
     const grupoId = typeof body.grupoId === "string" ? body.grupoId : "";
+    const lgpdConsent = body.lgpdConsent === true;
 
     if (nome.length < 2) return json({ error: "Informe o nome completo." }, 400);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return json({ error: "E-mail inválido." }, 400);
     if (password.length < 6) return json({ error: "A senha deve ter pelo menos 6 caracteres." }, 400);
     if (!isAllowedRole(role)) return json({ error: "Perfil inválido." }, 400);
     if (!grupoId) return json({ error: "Selecione o grupo de oração." }, 400);
+    if (!lgpdConsent) {
+      return json(
+        { error: "É necessário aceitar a Política de Privacidade e os Termos de Uso para continuar." },
+        400,
+      );
+    }
 
     const { data: grupo, error: grupoError } = await admin
       .from("grupos")
@@ -74,7 +81,13 @@ Deno.serve(async (req: Request) => {
     if (userId) {
       await admin
         .from("profiles")
-        .update({ nome, role, grupo_id: grupoId, status: "pendente" })
+        .update({
+          nome,
+          role,
+          grupo_id: grupoId,
+          status: "pendente",
+          lgpd_consent_at: new Date().toISOString(),
+        })
         .eq("id", userId);
     }
 

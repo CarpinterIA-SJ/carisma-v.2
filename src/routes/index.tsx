@@ -262,6 +262,16 @@ function LoginPage() {
               </p>
             </form>
           )}
+
+          <p className="mt-8 text-center text-xs text-muted-foreground">
+            <Link to="/privacidade" className="hover:text-foreground hover:underline">
+              Política de Privacidade
+            </Link>
+            <span className="mx-2">·</span>
+            <Link to="/termos" className="hover:text-foreground hover:underline">
+              Termos de Uso
+            </Link>
+          </p>
         </div>
       </div>
     </div>

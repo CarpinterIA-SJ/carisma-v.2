@@ -9,8 +9,10 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermosRouteImport } from './routes/termos'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RecibosRouteImport } from './routes/recibos'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CadastroRouteImport } from './routes/cadastro'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -25,6 +27,11 @@ import { Route as GruposIdFarolRouteImport } from './routes/grupos.$id.farol'
 import { Route as GruposIdServosIndexRouteImport } from './routes/grupos.$id.servos.index'
 import { Route as GruposIdServosServoIdRouteImport } from './routes/grupos.$id.servos.$servoId'
 
+const TermosRoute = TermosRouteImport.update({
+  id: '/termos',
+  path: '/termos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -33,6 +40,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const RecibosRoute = RecibosRouteImport.update({
   id: '/recibos',
   path: '/recibos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -106,8 +118,10 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/recibos': typeof RecibosRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
   '/eventos/$id': typeof EventosIdRoute
   '/grupos/$id': typeof GruposIdRouteWithChildren
   '/eventos/': typeof EventosIndexRoute
@@ -123,8 +137,10 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/recibos': typeof RecibosRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
   '/eventos/$id': typeof EventosIdRoute
   '/eventos': typeof EventosIndexRoute
   '/grupos': typeof GruposIndexRoute
@@ -140,8 +156,10 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/cadastro': typeof CadastroRoute
   '/dashboard': typeof DashboardRoute
+  '/privacidade': typeof PrivacidadeRoute
   '/recibos': typeof RecibosRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/termos': typeof TermosRoute
   '/eventos/$id': typeof EventosIdRoute
   '/grupos/$id': typeof GruposIdRouteWithChildren
   '/eventos/': typeof EventosIndexRoute
@@ -159,8 +177,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cadastro'
     | '/dashboard'
+    | '/privacidade'
     | '/recibos'
     | '/reset-password'
+    | '/termos'
     | '/eventos/$id'
     | '/grupos/$id'
     | '/eventos/'
@@ -176,8 +196,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cadastro'
     | '/dashboard'
+    | '/privacidade'
     | '/recibos'
     | '/reset-password'
+    | '/termos'
     | '/eventos/$id'
     | '/eventos'
     | '/grupos'
@@ -192,8 +214,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/cadastro'
     | '/dashboard'
+    | '/privacidade'
     | '/recibos'
     | '/reset-password'
+    | '/termos'
     | '/eventos/$id'
     | '/grupos/$id'
     | '/eventos/'
@@ -210,8 +234,10 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   CadastroRoute: typeof CadastroRoute
   DashboardRoute: typeof DashboardRoute
+  PrivacidadeRoute: typeof PrivacidadeRoute
   RecibosRoute: typeof RecibosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  TermosRoute: typeof TermosRoute
   EventosIdRoute: typeof EventosIdRoute
   GruposIdRoute: typeof GruposIdRouteWithChildren
   EventosIndexRoute: typeof EventosIndexRoute
@@ -220,6 +246,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/termos': {
+      id: '/termos'
+      path: '/termos'
+      fullPath: '/termos'
+      preLoaderRoute: typeof TermosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -232,6 +265,13 @@ declare module '@tanstack/react-router' {
       path: '/recibos'
       fullPath: '/recibos'
       preLoaderRoute: typeof RecibosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -353,8 +393,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   CadastroRoute: CadastroRoute,
   DashboardRoute: DashboardRoute,
+  PrivacidadeRoute: PrivacidadeRoute,
   RecibosRoute: RecibosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  TermosRoute: TermosRoute,
   EventosIdRoute: EventosIdRoute,
   GruposIdRoute: GruposIdRouteWithChildren,
   EventosIndexRoute: EventosIndexRoute,

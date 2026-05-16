@@ -54,6 +54,7 @@ function CadastroPage() {
   const [perfil, setPerfil] = useState<PerfilOption | "">("");
   const [grupoId, setGrupoId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [lgpdConsent, setLgpdConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -106,6 +107,10 @@ function CadastroPage() {
       setError("As senhas não coincidem.");
       return;
     }
+    if (!lgpdConsent) {
+      setError("É necessário aceitar a Política de Privacidade e os Termos de Uso para continuar.");
+      return;
+    }
 
     setSubmitting(true);
     const { error: signUpError } = await signUp({
@@ -114,6 +119,7 @@ function CadastroPage() {
       password,
       role: perfil,
       grupoId,
+      lgpdConsent,
     });
     setSubmitting(false);
 
@@ -310,6 +316,28 @@ function CadastroPage() {
               </div>
             )}
 
+            <label className="flex items-start gap-2 text-sm text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={lgpdConsent}
+                onChange={(e) => setLgpdConsent(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-input"
+                required
+              />
+              <span>
+                Li e aceito a{" "}
+                <Link to="/privacidade" target="_blank" className="text-primary hover:underline">
+                  Política de Privacidade
+                </Link>{" "}
+                e os{" "}
+                <Link to="/termos" target="_blank" className="text-primary hover:underline">
+                  Termos de Uso
+                </Link>
+                , autorizando o tratamento dos meus dados conforme a LGPD
+                (Lei nº 13.709/2018).
+              </span>
+            </label>
+
             {error && (
               <div className="flex items-center gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
                 <AlertCircle className="h-4 w-4 shrink-0" />
@@ -317,7 +345,7 @@ function CadastroPage() {
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={submitting}>
+            <Button type="submit" className="w-full" disabled={submitting || !lgpdConsent}>
               {submitting ? "Enviando..." : "Solicitar acesso"}
             </Button>
 

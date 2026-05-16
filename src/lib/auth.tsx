@@ -9,6 +9,7 @@ interface SignUpInput {
   password: string;
   role: Exclude<UserRole, "admin">;
   grupoId: string;
+  lgpdConsent: boolean;
 }
 
 interface AuthContextType {
@@ -149,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           password: input.password,
           role: input.role,
           grupoId: input.grupoId,
+          lgpdConsent: input.lgpdConsent,
         }),
       });
       const payload = (await res.json().catch(() => null)) as
