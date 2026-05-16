@@ -675,7 +675,7 @@ function mapUser(r: Record<string, unknown>): User {
     role: normalizeRole(r.role),
     grupoId: (r.grupo_id as string | null) ?? undefined,
     avatar: (r.avatar as string | null) ?? undefined,
-    status: ((r.status as User["status"] | null) ?? "aprovado") as User["status"],
+    status: ((r.status as User["status"] | null) ?? "pendente") as User["status"],
   };
 }
 

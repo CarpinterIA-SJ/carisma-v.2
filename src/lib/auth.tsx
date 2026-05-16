@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           .single();
         if (cancelled) return;
         if (data) {
-          const status: UserStatus = (data.status as UserStatus) ?? "aprovado";
+          const status: UserStatus = (data.status as UserStatus) ?? "pendente";
           if (status !== "aprovado") {
             // Sessão criada mas perfil não aprovado: derruba sessão imediatamente.
             await supabase.auth.signOut();
@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .select("status")
         .eq("id", userId)
         .single();
-      const status: UserStatus = (profile?.status as UserStatus) ?? "aprovado";
+      const status: UserStatus = (profile?.status as UserStatus) ?? "pendente";
       if (status !== "aprovado") {
         await supabase.auth.signOut();
         return {
@@ -131,24 +131,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signUp(input: SignUpInput) {
-    const { error } = await supabase.auth.signUp({
-      email: input.email,
-      password: input.password,
-      options: {
-        data: {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+    try {
+      const res = await fetch(`${supabaseUrl}/functions/v1/signup-request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${anonKey}`,
+          apikey: anonKey,
+        },
+        body: JSON.stringify({
           nome: input.nome,
+          email: input.email,
+          password: input.password,
           role: input.role,
           grupoId: input.grupoId,
-          status: "pendente",
-        },
-      },
-    });
-    if (error) return { error: error.message };
-
-    // Garante que o usuário não fique logado após o signUp (caso o projeto não exija
-    // confirmação de e-mail). O acesso só vale após aprovação do admin.
-    await supabase.auth.signOut();
-    return { error: null };
+        }),
+      });
+      const payload = (await res.json().catch(() => null)) as
+        | { ok?: boolean; error?: string }
+        | null;
+      if (!res.ok) {
+        return { error: payload?.error ?? `Falha no cadastro (HTTP ${res.status}).` };
+      }
+      if (payload?.error) return { error: payload.error };
+      return { error: null };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro de rede.";
+      return { error: message };
+    }
   }
 
   async function signOut() {
