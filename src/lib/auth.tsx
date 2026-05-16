@@ -174,7 +174,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await supabase.auth.resetPasswordForEmail(normalized, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    return { error: error?.message ?? null };
+    if (!error) return { error: null };
+    const status = (error as { status?: number }).status;
+    if (status === 429) {
+      return {
+        error:
+          "Muitas tentativas. Aguarde alguns minutos antes de solicitar um novo link de redefinição.",
+      };
+    }
+    return { error: error.message };
   }
 
   return (

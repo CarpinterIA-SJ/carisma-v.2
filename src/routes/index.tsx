@@ -71,7 +71,7 @@ function LoginPage() {
     const { error } = await resetPassword(normalized);
     setSubmitting(false);
     if (error) {
-      setError("Não foi possível enviar o e-mail. Verifique o endereço e tente novamente.");
+      setError(error);
     } else {
       setResetSent(true);
     }
