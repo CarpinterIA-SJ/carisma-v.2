@@ -60,10 +60,15 @@ function LoginPage() {
 
   async function handleForgotPassword(e: { preventDefault(): void }) {
     e.preventDefault();
+    const normalized = email.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
+      setError("Informe um e-mail válido.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
-    const { error } = await resetPassword(email);
+    const { error } = await resetPassword(normalized);
     setSubmitting(false);
     if (error) {
       setError("Não foi possível enviar o e-mail. Verifique o endereço e tente novamente.");

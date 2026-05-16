@@ -20,19 +20,31 @@ function ResetPasswordPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [validSession, setValidSession] = useState(false);
+  const [validSession, setValidSession] = useState<boolean | null>(null);
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") {
+    let cancelled = false;
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (cancelled) return;
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
         setValidSession(true);
       }
     });
 
-    // Also check for existing recovery session
+    // Fallback: page may have been reached with an already-active session
+    // (e.g. user reloaded after recovery link was parsed).
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setValidSession(true);
+      if (cancelled) return;
+      setValidSession((current) => current ?? Boolean(session));
     });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   async function handleSubmit(e: { preventDefault(): void }) {
@@ -53,11 +65,20 @@ function ResetPasswordPage() {
     setSubmitting(false);
 
     if (error) {
-      setError("Não foi possível redefinir a senha. O link pode ter expirado.");
+      setError(error.message || "Não foi possível redefinir a senha. O link pode ter expirado.");
     } else {
       setSuccess(true);
+      await supabase.auth.signOut();
       setTimeout(() => navigate({ to: "/" }), 3000);
     }
+  }
+
+  if (validSession === null) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
   }
 
   if (!validSession) {

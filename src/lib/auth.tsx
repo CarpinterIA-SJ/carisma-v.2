@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import type { Session, User as SupabaseUser } from "@supabase/supabase-js";
+import type { AuthChangeEvent, Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 import type { User, UserRole, UserStatus } from "./types";
 
@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     let currentUserId: string | null = null;
 
-    async function loadProfile(supabaseUser: SupabaseUser) {
+    async function loadProfile(supabaseUser: SupabaseUser, allowUnapproved: boolean) {
       try {
         const { data } = await supabase
           .from("profiles")
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (cancelled) return;
         if (data) {
           const status: UserStatus = (data.status as UserStatus) ?? "pendente";
-          if (status !== "aprovado") {
+          if (status !== "aprovado" && !allowUnapproved) {
             // Sessão criada mas perfil não aprovado: derruba sessão imediatamente.
             await supabase.auth.signOut();
             setUser(null);
@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    function handleSession(session: Session | null) {
+    function handleSession(session: Session | null, event: AuthChangeEvent | null) {
       setSession(session);
       const nextUserId = session?.user.id ?? null;
       // Skip refetch if the user hasn't changed (e.g. TOKEN_REFRESHED, USER_UPDATED).
@@ -79,7 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       currentUserId = nextUserId;
       if (session) {
         setLoading(true);
-        loadProfile(session.user);
+        // During password recovery the user must keep the session alive even if
+        // their profile is not approved, so they can complete updateUser().
+        loadProfile(session.user, event === "PASSWORD_RECOVERY");
       } else {
         setUser(null);
         setLoading(false);
@@ -88,14 +90,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (cancelled) return;
-      handleSession(session);
+      handleSession(session, null);
     });
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (cancelled) return;
-      handleSession(session);
+      handleSession(session, event);
     });
 
     return () => {
@@ -168,7 +170,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function resetPassword(email: string) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const normalized = email.trim().toLowerCase();
+    const { error } = await supabase.auth.resetPasswordForEmail(normalized, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     return { error: error?.message ?? null };
